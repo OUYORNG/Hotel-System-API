@@ -2,10 +2,13 @@ package com.example.hotel_system.controller;
 
 import com.example.hotel_system.model.RoomModel;
 import com.example.hotel_system.request.RoomRequest;
+import com.example.hotel_system.response.RoomDetailsResponse;
+import com.example.hotel_system.response.RoomResponse;
 import com.example.hotel_system.service.RoomService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +23,7 @@ public class RoomController {
     }
 
     @GetMapping
-    public Page<RoomModel> getRooms(
+    public Page<RoomResponse> getRooms(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size
     ) {
@@ -29,16 +32,16 @@ public class RoomController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RoomModel> getRoomById(@PathVariable Long id) {
-        RoomModel room = roomService.getRoomById(id);
+    public ResponseEntity<RoomDetailsResponse> getRoomById(@PathVariable Long id) {
+        RoomDetailsResponse room = roomService.getRoomById(id);
         if (room == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(room);
     }
 
-    @PostMapping
-    public ResponseEntity<RoomModel> createRoom(@RequestBody RoomRequest request) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<RoomModel> createRoom( @ModelAttribute RoomRequest request) {
         RoomModel savedRoom = roomService.createRoom(request);
         return ResponseEntity.ok(savedRoom);
     }

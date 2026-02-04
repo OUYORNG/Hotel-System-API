@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,15 +34,20 @@ public class RoomModel {
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
     private List<Booking> bookings;
 
-    @JsonIgnore
+//    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "room_amenities",
             joinColumns = @JoinColumn(name = "room_id"),
             inverseJoinColumns = @JoinColumn(name = "amenity_id")
     )
-    private Set<Amenities> amenities;
+    private Set<Amenities> amenities = new HashSet<>();
 
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<RoomImage> images;
+    @ElementCollection
+    @CollectionTable(
+            name = "room_images",
+            joinColumns = @JoinColumn(name = "room_id")
+    )
+    @Column(name = "images")
+    private List<String> images;   // ✅ CORRECT
 }
