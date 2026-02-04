@@ -45,7 +45,9 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/api/public/**", "/api/rooms/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/public/**", "/api/rooms/**","/api/amenities/**","/uploads/**",
+                                "/images/**",
+                                "/public/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );
