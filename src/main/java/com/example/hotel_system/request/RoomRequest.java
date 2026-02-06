@@ -19,5 +19,4 @@ public class RoomRequest {
     private Integer bedSize;
     private Float rating;
     private Integer maxGuest;
-    private List<MultipartFile> images;
 }

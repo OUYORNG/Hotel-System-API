@@ -13,17 +13,20 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
 
-    private static final String UPLOAD_DIR = "uploads/rooms/";
+    private static final String UPLOAD_DIR = "uploads/rooms";
 
     public String save(MultipartFile file) {
         try {
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-            Path path = Paths.get(UPLOAD_DIR + fileName);
 
-            Files.createDirectories(path.getParent());
-            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+            Path uploadPath = Paths.get(UPLOAD_DIR);
+            Files.createDirectories(uploadPath);
 
-            return "/uploads/rooms/" + fileName; // URL saved in DB
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            return "/uploads/rooms/" + fileName;
+
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file", e);
         }
