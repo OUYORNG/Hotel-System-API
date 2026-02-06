@@ -73,8 +73,12 @@ public class AuthService {
     }
 
     private AuthResponse generateAuthResponse(User user) {
-        String accessToken = jwtService.generateToken(new HashMap<>(), user);
-        String refreshToken = jwtService.generateRefreshToken(user);
+
+        String accessToken = jwtService.generateToken(
+                user.getEmail(),
+                user.getRole().getAuthority()
+        );
+        String refreshToken = jwtService.generateRefreshToken(user.getEmail());
 
         AuthResponse response = new AuthResponse();
         response.setAccessToken(accessToken);
@@ -88,6 +92,7 @@ public class AuthService {
 
         return response;
     }
+
 
     private UserDto toUserRequest(User user) {
         return new UserDto(

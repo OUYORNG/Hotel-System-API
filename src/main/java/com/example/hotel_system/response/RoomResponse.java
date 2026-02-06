@@ -19,5 +19,12 @@ public class RoomResponse {
     private String description;
     private Set<AmentiesResponse> amenities = new HashSet<>();
     private double pricePerNight;
+    private String roomType;
+    private Integer bedSize;
+    private String bedType;
+    private Double rating;
+    private Integer maxGuest;
+
     List<String> images;
+
 }

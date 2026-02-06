@@ -1,16 +1,26 @@
 package com.example.hotel_system.controller;
 
+import com.example.hotel_system.model.RoomImage;
 import com.example.hotel_system.model.RoomModel;
 import com.example.hotel_system.request.RoomRequest;
 import com.example.hotel_system.response.RoomDetailsResponse;
 import com.example.hotel_system.response.RoomResponse;
 import com.example.hotel_system.service.RoomService;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/rooms")
@@ -27,37 +37,53 @@ public class RoomController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size
     ) {
-        Pageable pageable = PageRequest.of(page, size);
-        return roomService.getRooms(pageable);
+        return roomService.getRooms(PageRequest.of(page, size));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<RoomDetailsResponse> getRoomById(@PathVariable Long id) {
-        RoomDetailsResponse room = roomService.getRoomById(id);
-        if (room == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(room);
+        return ResponseEntity.ok(roomService.getRoomById(id));
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<RoomModel> createRoom( @ModelAttribute RoomRequest request) {
-        RoomModel savedRoom = roomService.createRoom(request);
-        return ResponseEntity.ok(savedRoom);
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Map<String, Object>> createRoom(@RequestBody RoomRequest request) {
+        RoomModel room = roomService.createRoom(request);
+        Map<String, Object> res = new HashMap<>();
+        res.put("id", room.getId());
+        return ResponseEntity.ok(res);
     }
+
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RoomModel> updateRoom(
             @PathVariable Long id,
             @RequestBody RoomRequest request
     ) {
-        RoomModel room = roomService.updateRoom(id, request);
-        return ResponseEntity.ok(room);
+        return ResponseEntity.ok(roomService.updateRoom(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<RoomModel> deleteRoom(@PathVariable Long id){
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteRoom(@PathVariable Long id) {
         roomService.deleteRoom(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping(
+            value = "/upload-images/{roomId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<RoomImage>> uploadImages(
+            @PathVariable Long roomId,
+            @RequestParam("images") MultipartFile[] files // accept array
+    ) {
+        return ResponseEntity.ok(
+                roomService.uploadRoomImages(roomId, Arrays.asList(files))
+        );
+    }
+
 }
+

@@ -1,26 +1,27 @@
 package com.example.hotel_system.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Entity
+@Table(name = "rooms")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name="rooms")
-
 public class RoomModel {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String title;
     private String description;
     private double pricePerNight;
@@ -31,23 +32,14 @@ public class RoomModel {
     private Integer maxGuest;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Booking> bookings;
 
-//    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "room_amenities",
-            joinColumns = @JoinColumn(name = "room_id"),
-            inverseJoinColumns = @JoinColumn(name = "amenity_id")
-    )
+    @JoinTable(name = "room_amenities", joinColumns = @JoinColumn(name = "room_id"), inverseJoinColumns = @JoinColumn(name = "amenity_id"))
     private Set<Amenities> amenities = new HashSet<>();
 
-    @ElementCollection
-    @CollectionTable(
-            name = "room_images",
-            joinColumns = @JoinColumn(name = "room_id")
-    )
-    @Column(name = "images")
-    private List<String> images;   // ✅ CORRECT
+    @JsonManagedReference
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RoomImage> images = new ArrayList<>();
 }
